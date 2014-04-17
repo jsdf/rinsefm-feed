@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>rinse fm podcast generator</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1>rinse fm podcast generator</h1>
+    <ol>
+      <li>select the artists/shows you want to include </li>
+      <li>click the submit button to get your custom rinse fm podcast</li>
+      <li>copy the podcast url from the address bar</li>
+      <li>in itunes go to <em>file > subscribe to podcast</em></li>
+      <li>paste podcast url and click ok</li>
+      <li>dun</li>
+    </ol>
+    <form action="podcast.xml">
+      {{#shows}}
+        <label><input name="shows[{{.}}]" type="checkbox" /> {{.}}</label><br>
+      {{/shows}}
+      {{^shows}}
+        No shows :(
+      {{/shows}}
+      <div class="actions">
+        <input type="submit" value=" ༼ つ ◕_◕ ༽つ give podcast">
+      </div>
+    </form>
+  </body>
+</html>

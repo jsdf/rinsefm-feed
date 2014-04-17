@@ -1,7 +1,1 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-}
-a {
-  color: #00B7FF;
-}
+body{padding:25px 10%;font:14px "Helvetica Neue",Helvetica,sans-serif;font-weight:300}h1{font-weight:300}a{color:#00B7FF}input[type=submit]{margin:10px 0;font-size:24px}input[type=checkbox],label{cursor:pointer;font-size:18px}input[type=checkbox]{-ms-transform:scale(1.5);-moz-transform:scale(1.5);-webkit-transform:scale(1.5);-o-transform:scale(1.5);margin:6px}
