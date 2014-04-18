@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8" />
     <title>rinse fm podcast generator</title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="/javascripts/vendor/react-0.10.0-dev.js"></script>
   </head>
   <body>
     <h1>rinse fm podcast generator</h1>
@@ -25,5 +27,6 @@
         <input type="submit" value=" ༼ つ ◕_◕ ༽つ give podcast">
       </div>
     </form>
+    <script type="text/javascript" src="/javascripts/client.js"></script>
   </body>
 </html>
