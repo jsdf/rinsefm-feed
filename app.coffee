@@ -10,7 +10,7 @@ db = level './store', valueEncoding: 'json'
 
 # all environments
 app.set 'port', process.env.PORT or 3000
-app.set 'views', __dirname + '/views'
+app.set 'views', path.join __dirname, 'views'
 app.set 'view engine', 'hjs'
 
 app.use require('static-favicon')()
@@ -19,14 +19,14 @@ app.use require('body-parser')()
 app.use require('method-override')()
 
 routes = require('./routes')(app, db)
-app.get '/', routes.list
-app.get '/podcast.xml', routes.podcast
+app.get '/', routes.builder
+app.get '/shows', routes.shows
+app.get '/podcast', routes.podcast
 app.get '/update', routes.update
 
 app.get '/javascripts/client.js', browserify './client/client.coffee',
   extensions: ['.js','.coffee']
   transform: ['coffee-reactify']
-  grep: /\.(?:js|coffee|ls)$/
 
 app.use require('less-middleware')(path.join __dirname, 'public')
 app.use require('serve-static')(path.join __dirname, 'public')

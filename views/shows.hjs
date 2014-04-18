@@ -16,17 +16,7 @@
       <li>paste podcast url and click ok</li>
       <li>dun</li>
     </ol>
-    <form action="podcast.xml">
-      {{#shows}}
-        <label><input name="shows[{{.}}]" type="checkbox" /> {{.}}</label><br>
-      {{/shows}}
-      {{^shows}}
-        No shows :(
-      {{/shows}}
-      <div class="actions">
-        <input type="submit" value=" ༼ つ ◕_◕ ༽つ give podcast">
-      </div>
-    </form>
+    <div id="shows"></div>
     <script type="text/javascript" src="/javascripts/client.js"></script>
   </body>
 </html>

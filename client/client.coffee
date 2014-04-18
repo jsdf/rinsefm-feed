@@ -1,6 +1,12 @@
-# @csx React.DOM
-components = require './components'
+# @csx
 
-React.renderComponent <h1>Hello, world!</h1>, document.body
+request = require 'superagent'
+React = require 'react-shim'
 
-console.log 'hi'
+{ShowList} = require './components'
+
+request.get('/shows').end (res) ->
+  shows = res.body
+
+  React.renderComponent ShowList({shows}), document.getElementById 'shows'
+

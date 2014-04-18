@@ -3,5 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "superagent": "^0.17.0",
+    "underscore": "^1.6.0"
   }
 }

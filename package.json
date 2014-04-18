@@ -6,9 +6,9 @@
     "start": "coffee app.coffee"
   },
   "dependencies": {
-    "express": "*",
-    "hjs": "*",
-    "less-middleware": "*",
+    "express": "^4.0.0",
+    "hjs": "^0.0.6",
+    "less-middleware": "~0.2.1-beta",
     "cheerio": "~0.11.0",
     "coffee-script": "~1.6.2",
     "request": "~2.21.0",
@@ -26,6 +26,10 @@
     "browserify-middleware": "^2.5.0",
     "coffeeify": "^0.6.0",
     "serve-index": "^1.0.1",
-    "coffee-reactify": "^0.1.0"
+    "coffee-reactify": "^0.1.0",
+    "envify": "^1.2.1",
+    "react": "^0.10.0",
+    "browserify": "^3.43.0",
+    "browserify-shim": "^3.4.1"
   }
 }

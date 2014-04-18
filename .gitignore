@@ -33,8 +33,12 @@ nbproject
 .svn
 .CVS
 .idea
-node_modules
 dist
+
+/node_modules/
+/client/node_modules/*
+/client/node_modules/react-shim/node_modules/
+!/client/node_modules/react-shim/
 
 /config.json
 store/
