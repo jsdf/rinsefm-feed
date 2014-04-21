@@ -1,6 +1,7 @@
 body {
+  margin: 0;
   padding: 25px 10%;
-  font: 14px "Helvetica Neue", Helvetica, sans-serif;
+  font: 16px "Helvetica Neue", Helvetica, sans-serif;
   font-weight: 300;
 }
 
@@ -8,18 +9,28 @@ h1 {
   font-weight: 300;
 }
 
+#title,
+#instructions,
+#shows {
+  width: 40%;
+}
+
 a {
   color: #00B7FF;
 }
 
+label.show {
+  display: block;
+}
+
 input[type=submit] {
-	margin: 10px 0;
-	font-size: 24px;
+  margin: 10px 0;
+  font-size: 24px;
 }
 
 input[type=checkbox], label {
-	cursor: pointer;
-	font-size: 18px;
+  cursor: pointer;
+  font-size: 18px;
 }
 input[type=checkbox] {
   -ms-transform: scale(1.5); 
@@ -28,3 +39,18 @@ input[type=checkbox] {
   -o-transform: scale(1.5); 
   margin: 6px;
 }
+
+.podcast-url {
+  width: 40%;
+  bottom: 15%;
+  right: 10%;
+  position: fixed;
+
+  .copy-url {
+    word-break: break-all;
+    background-color: #FFF588;
+    border: solid 2px #FCE600;
+    padding: 2%;
+  }
+}
+

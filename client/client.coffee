@@ -5,8 +5,12 @@ React = require 'react-shim'
 
 {ShowList} = require './components'
 
+showsEl = document.getElementById 'shows'
+
+showsEl.innerText = 'loading...'
+
 request.get('/shows').end (res) ->
   shows = res.body
 
-  React.renderComponent ShowList({shows}), document.getElementById 'shows'
+  React.renderComponent ShowList({shows}), showsEl
 

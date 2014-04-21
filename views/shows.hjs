@@ -7,11 +7,10 @@
     <script src="/javascripts/vendor/react-0.10.0-dev.js"></script>
   </head>
   <body>
-    <h1>rinse fm podcast generator</h1>
-    <ol>
+    <h1 id="title">rinse fm podcast generator</h1>
+    <ol id="instructions">
       <li>select the artists/shows you want to include </li>
-      <li>click the submit button to get your custom rinse fm podcast</li>
-      <li>copy the podcast url from the address bar</li>
+      <li>copy the podcast url on the right</li>
       <li>in itunes go to <em>file > subscribe to podcast</em></li>
       <li>paste podcast url and click ok</li>
       <li>dun</li>
