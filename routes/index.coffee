@@ -2,58 +2,91 @@ _ = require 'underscore'
 Set = require 'collections/set'
 async = require 'async'
 concatstream = require 'concat-stream'
+moment = require 'moment'
 podcastgen = require 'podcastgen'
 
 scrape = require '../scraper'
 
-module.exports = (app, db) ->
-  routes =
-    shows: (req, res) ->
-      shows = new Set()
+moment.lang 'en'
+DATE_RFC2822 = "ddd, DD MMM YYYY HH:mm:ss ZZ"
 
-      db.createReadStream().pipe concatstream (podcastRecords) ->
-        return res.json [] unless podcastRecords and podcastRecords.length
+module.exports = (app, db, config) ->
+  authorised = (req, res) ->
+    if config.secret and req.query.secret is config.secret
+      true
+    else
+      res.send(403)
+      false
 
-        _.each _.pluck(podcastRecords, 'value'), (podcast) ->
-          shows.add podcast.show if podcast.show
+  shows: (req, res) ->
+    shows = new Set()
 
-        res.json shows.toArray()
+    db.createReadStream().pipe concatstream (podcastRecords) ->
+      return res.json [] unless podcastRecords and podcastRecords.length
 
-    builder: (req, res) -> res.render 'shows'
+      _.each _.pluck(podcastRecords, 'value'), (podcast) ->
+        shows.add podcast.show if podcast.show
 
-    podcast: (req, res) ->
-      db.createReadStream().pipe concat (podcastRecords) ->
-        if podcastRecords and podcastRecords.length
-          podcasts = _.pluck podcastRecords, 'value'
-          
-          if req.query.shows
-            shows = new Set(req.query.shows.split(','))
-            podcastsFiltered = _.filter podcasts, (podcast) -> shows.has podcast.show
-          else
-            podcastsFiltered = podcasts
+      res.json shows.toArray()
 
-          # res.render 'podcasts', {podcasts}
-          res.send podcastgen
-            title: "rinse fm podcast"
-            baseUrl: ""
-            podcastUrl: "http://localhost:3000/"
-            items: _.map podcastsFiltered, (podcast) ->
-              title: podcast.title
-              path: podcast.file
-              date: podcast.airdate
+  builder: (req, res) -> res.render 'shows'
+
+  podcast: (req, res) ->
+    db.createReadStream().pipe concatstream (podcastRecords) ->
+      if podcastRecords and podcastRecords.length
+        podcasts = _.pluck podcastRecords, 'value'
+        
+        if req.query.shows
+          shows = new Set(req.query.shows.split(','))
+          podcastsFiltered = _.filter podcasts, (podcast) -> shows.has podcast.show
         else
-          res.send 'out of clay'
+          podcastsFiltered = podcasts
 
-    update: (req, res) ->
-      page = req.query.page || 1
-      url = "http://rinse.fm/podcasts/?page=#{page}"
+        if shows
+          title = "rinse shows #{shows.toArray().join(', ')}"
+        else
+          title = "rinse fm podcast"
 
-      persist = (podcast, done) ->
-        db.put podcast.file, podcast, done
+        sortByTimeDesc = (items) -> _.sortBy(items, (item) -> -item.timestamp)
 
-      scrape url, (podcasts) ->
-        async.each podcasts, persist, (err) ->
-          console.error err if err
-          res.json podcasts
-  
-  routes
+        res.send podcastgen
+          title: title
+          baseUrl: ""
+          podcastUrl: "http://localhost:3000/"
+          items: sortByTimeDesc _.map podcastsFiltered, (podcast) ->
+            dateParsed = new Date(podcast.airdate)
+
+            title: podcast.title
+            path: podcast.file
+            date: moment(dateParsed).format(DATE_RFC2822)
+            timestamp: dateParsed.getTime()
+      else
+        res.send 404, 'out of clay'
+
+  list: (req, res) ->
+    return unless authorised req, res
+
+    db.createReadStream().pipe concatstream (podcastRecords) ->
+      if podcastRecords and podcastRecords.length
+        _.each(
+          _.sortBy(
+            _.pluck(podcastRecords, 'value')
+          , (podcast) -> - new Date(podcast.airdate).getTime())
+        , (podcast) -> res.write "#{podcast.airdate} #{podcast.title} [#{podcast.show}]\n")
+        res.end()
+      else
+        res.send 404
+
+
+  update: (req, res) ->
+    return unless authorised req, res
+
+    page = req.query.page or 1
+    url = "http://rinse.fm/podcasts/?page=#{page}"
+
+    persistPodcast = (podcast, done) -> db.put(podcast.file, podcast, done)
+
+    scrape url, (podcasts) ->
+      async.each podcasts, persistPodcast, (err) ->
+        console.error err if err
+        res.json podcasts

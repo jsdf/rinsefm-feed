@@ -30,6 +30,7 @@
     "envify": "^1.2.1",
     "react": "^0.10.0",
     "browserify": "^3.43.0",
-    "browserify-shim": "^3.4.1"
+    "browserify-shim": "^3.4.1",
+    "moment": "^2.6.0"
   }
 }

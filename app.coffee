@@ -7,9 +7,10 @@ browserify = require 'browserify-middleware'
 
 app = express()
 db = level './store', valueEncoding: 'json'
+config = require('./config.json')
 
 # all environments
-app.set 'port', process.env.PORT or 3000
+app.set 'port', process.env.PORT or config.port or 3000
 app.set 'views', path.join __dirname, 'views'
 app.set 'view engine', 'hjs'
 
@@ -18,11 +19,12 @@ app.use require('morgan')('dev')
 app.use require('body-parser')()
 app.use require('method-override')()
 
-routes = require('./routes')(app, db)
+routes = require('./routes')(app, db, config)
 app.get '/', routes.builder
 app.get '/shows', routes.shows
 app.get '/podcast', routes.podcast
 app.get '/update', routes.update
+app.get '/list', routes.list
 
 app.get '/javascripts/client.js', browserify './client/client.coffee',
   extensions: ['.js','.coffee']
