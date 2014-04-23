@@ -1,5 +1,6 @@
 _ = require 'underscore'
 Set = require 'collections/set'
+SortedSet = require 'collections/sorted-set'
 async = require 'async'
 concatstream = require 'concat-stream'
 moment = require 'moment'
@@ -19,7 +20,7 @@ module.exports = (app, db, config) ->
       false
 
   shows: (req, res) ->
-    shows = new Set()
+    shows = new SortedSet()
 
     db.createReadStream().pipe concatstream (podcastRecords) ->
       return res.json [] unless podcastRecords and podcastRecords.length
