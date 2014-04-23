@@ -15,7 +15,7 @@ module.exports = (app, db, config) ->
     if config.secret and req.query.secret is config.secret
       true
     else
-      res.send(403)
+      res.send 403
       false
 
   shows: (req, res) ->
@@ -33,50 +33,49 @@ module.exports = (app, db, config) ->
 
   podcast: (req, res) ->
     db.createReadStream().pipe concatstream (podcastRecords) ->
-      if podcastRecords and podcastRecords.length
-        podcasts = _.pluck podcastRecords, 'value'
-        
-        if req.query.shows
-          shows = new Set(req.query.shows.split(','))
-          podcastsFiltered = _.filter podcasts, (podcast) -> shows.has podcast.show
-        else
-          podcastsFiltered = podcasts
+      unless podcastRecords and podcastRecords.length
+        return res.send 404, 'out of clay' 
 
-        if shows
-          title = "rinse fm shows: #{shows.sorted().join(', ')}"
-        else
-          title = "rinse fm podcast"
-
-        sortByTimeDesc = (items) -> _.sortBy(items, (item) -> -item.timestamp)
-
-        res.send podcastgen
-          title: title
-          baseUrl: ""
-          podcastUrl: "http://localhost:3000/"
-          items: sortByTimeDesc _.map podcastsFiltered, (podcast) ->
-            dateParsed = new Date(podcast.airdate)
-
-            title: podcast.title
-            path: podcast.file
-            date: moment(dateParsed).format(DATE_RFC2822)
-            timestamp: dateParsed.getTime()
+      podcasts = _.pluck podcastRecords, 'value'
+      
+      if req.query.shows
+        shows = new Set(req.query.shows.split(','))
+        podcastsFiltered = _.filter podcasts, (podcast) -> shows.has podcast.show
       else
-        res.send 404, 'out of clay'
+        podcastsFiltered = podcasts
+
+      if shows
+        title = "rinse fm shows: #{shows.sorted().join(', ')}"
+      else
+        title = "rinse fm podcast"
+
+      sortByTimeDesc = (items) -> _.sortBy(items, (item) -> -item.timestamp)
+
+      res.send podcastgen
+        title: title
+        baseUrl: ""
+        podcastUrl: "#{req.protocol}://#{req.get 'host'}#{req.originalUrl}"
+        items: sortByTimeDesc _.map podcastsFiltered, (podcast) ->
+          dateParsed = new Date(podcast.airdate)
+
+          title: podcast.title
+          path: podcast.file
+          date: moment(dateParsed).format(DATE_RFC2822)
+          timestamp: dateParsed.getTime()
 
   list: (req, res) ->
     return unless authorised req, res
 
     db.createReadStream().pipe concatstream (podcastRecords) ->
-      if podcastRecords and podcastRecords.length
-        _.each(
-          _.sortBy(
-            _.pluck(podcastRecords, 'value')
-          , (podcast) -> - new Date(podcast.airdate).getTime())
-        , (podcast) -> res.write "#{podcast.airdate} #{podcast.title} [#{podcast.show}]\n")
-        res.end()
-      else
-        res.send 404
+      return res.send 404 unless podcastRecords and podcastRecords.length
 
+      _.each(
+        _.sortBy(
+          _.pluck(podcastRecords, 'value')
+        , (podcast) -> - new Date(podcast.airdate).getTime())
+      , (podcast) -> res.write "#{podcast.airdate} #{podcast.title} [#{podcast.show}]\n")
+
+      res.end()
 
   update: (req, res) ->
     return unless authorised req, res
