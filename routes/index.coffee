@@ -1,6 +1,5 @@
 _ = require 'underscore'
 Set = require 'collections/set'
-SortedSet = require 'collections/sorted-set'
 async = require 'async'
 concatstream = require 'concat-stream'
 moment = require 'moment'
@@ -20,7 +19,7 @@ module.exports = (app, db, config) ->
       false
 
   shows: (req, res) ->
-    shows = new SortedSet()
+    shows = new Set()
 
     db.createReadStream().pipe concatstream (podcastRecords) ->
       return res.json [] unless podcastRecords and podcastRecords.length
@@ -28,7 +27,7 @@ module.exports = (app, db, config) ->
       _.each _.pluck(podcastRecords, 'value'), (podcast) ->
         shows.add podcast.show if podcast.show
 
-      res.json shows.toArray()
+      res.json shows.sorted()
 
   builder: (req, res) -> res.render 'shows'
 
@@ -44,7 +43,7 @@ module.exports = (app, db, config) ->
           podcastsFiltered = podcasts
 
         if shows
-          title = "rinse shows #{shows.toArray().join(', ')}"
+          title = "rinse fm shows: #{shows.sorted().join(', ')}"
         else
           title = "rinse fm podcast"
 
