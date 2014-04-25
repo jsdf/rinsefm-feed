@@ -36,8 +36,14 @@ app.get '/javascripts/client.js', browserify './client/client.coffee',
 
 app.use require('less-middleware')(
   path.join(__dirname, 'public'),
-  compress: app.get 'env' is 'production'
-  sourceMap: app.get 'env' isnt 'production'
+  {
+    once: app.get 'env' is 'production'
+  },
+  {},
+  {
+    compress: app.get 'env' is 'production'
+    sourceMap: app.get 'env' is 'development'
+  }
 )
 app.use require('serve-static')(path.join(__dirname, 'public'), maxAge: config.maxAgeStatic)
 app.use require('errorhandler')() if app.get 'env' is 'development'
