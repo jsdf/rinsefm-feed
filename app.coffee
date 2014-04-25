@@ -14,6 +14,8 @@ config.maxAgeDynamic = moment.duration(1, 'hours').asSeconds()
 config.maxAgeStatic = moment.duration(24, 'hours').asSeconds()
 
 # all environments
+production = app.get 'env' is 'production'
+development = app.get 'env' is 'development'
 app.set 'port', process.env.PORT or config.port or 3000
 app.set 'views', path.join __dirname, 'views'
 app.set 'view engine', 'hjs'
@@ -34,19 +36,12 @@ app.get '/javascripts/client.js', browserify './client/client.coffee',
   extensions: ['.js','.coffee']
   transform: ['coffee-reactify']
 
-app.use require('less-middleware')(
-  path.join(__dirname, 'public'),
-  {
-    once: app.get 'env' is 'production'
-  },
-  {},
-  {
-    compress: app.get 'env' is 'production'
-    sourceMap: app.get 'env' is 'development'
-  }
-)
+app.use require('less-middleware')(path.join(__dirname, 'public'), { once: production }, {}, {
+  compress: production
+  sourceMap: development
+})
 app.use require('serve-static')(path.join(__dirname, 'public'), maxAge: config.maxAgeStatic)
-app.use require('errorhandler')() if app.get 'env' is 'development'
+app.use require('errorhandler')() if development
   
 app.listen app.get('port'), ->
   console.log "Express #{app.get 'env'} server listening on port #{app.get 'port'}"

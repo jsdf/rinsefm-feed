@@ -42,7 +42,7 @@ module.exports = (app, db, config) ->
 
   builder: (req, res) ->    
     cache res, config.maxAgeDynamic
-  
+
     loadPodcasts (podcasts) ->
       showsSorted = showsFromPodcasts(podcasts).sorted()
 
@@ -83,9 +83,11 @@ module.exports = (app, db, config) ->
     loadPodcasts (podcasts) ->
       res.write JSON.stringify(process.env, null, 2)+"\n"
 
-      _.each(
-        _.sortBy(podcasts, (podcast) -> - new Date(podcast.airdate).getTime())
-      , (podcast) -> res.write "#{podcast.airdate} #{podcast.title} [#{podcast.show}]\n")
+      podcastsByDate = _.sortBy podcasts, (podcast) ->
+        - new Date(podcast.airdate).getTime()
+
+      _.each podcastsByDate, (podcast) ->
+        res.write "#{podcast.airdate} #{podcast.title} [#{podcast.show}]\n"
 
       res.end()
 
