@@ -1,16 +1,11 @@
 # @csx
 
-request = require 'superagent'
-React = require 'react-shim'
+React = require 'react'
 
-{ShowList} = require './components'
+ShowList = require './show-list'
 
-showsEl = document.getElementById 'shows'
 
-showsEl.innerText = 'loading...'
-
-request.get('/shows').end (res) ->
-  shows = res.body
-
-  React.renderComponent ShowList({shows}), showsEl
+window.RinseFM =
+  init: (shows, container) ->
+    React.renderComponent ShowList({shows}), container
 

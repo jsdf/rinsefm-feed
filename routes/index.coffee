@@ -9,29 +9,50 @@ scrape = require '../scraper'
 
 moment.lang 'en'
 DATE_RFC2822 = "ddd, DD MMM YYYY HH:mm:ss ZZ"
+MAX_AGE_ONE_HOUR = moment.duration(1, 'hours').asSeconds()
+MAX_AGE_ONE_DAY = moment.duration(24, 'hours').asSeconds()
+
+cache = (res, maxAge) ->
+  res.set "Cache-Control":"public, max-age=#{maxAge}"
+
+requestUrl = (req) ->
+  "#{req.protocol}://#{req.get('host')}#{req.originalUrl}"
 
 module.exports = (app, db, config) ->
-  authorised = (req, res) ->
-    if config.secret and req.query.secret is config.secret
-      true
-    else
-      res.send 403
-      false
+  authorised = (req) ->
+    config.secret and req.query.secret is config.secret
 
-  shows: (req, res) ->
-    shows = new Set()
-
+  loadPodcasts = (done) ->
     db.createReadStream().pipe concatstream (podcastRecords) ->
-      return res.json [] unless podcastRecords and podcastRecords.length
+      if podcastRecords and podcastRecords.length
+        done _.pluck(podcastRecords, 'value')
+      else
+        done []
 
-      _.each _.pluck(podcastRecords, 'value'), (podcast) ->
-        shows.add podcast.show if podcast.show
+  showsFromPodcasts = (podcasts) ->
+    _.reduce(podcasts, (shows, podcast) ->
+      shows.add podcast.show if podcast.show
+      shows
+    , new Set())
 
-      res.json shows.sorted()
+  # routes
+  shows: (req, res) ->
+    cache res, MAX_AGE_ONE_HOUR
 
-  builder: (req, res) -> res.render 'shows'
+    loadPodcasts (podcasts) ->
+      res.json showsFromPodcasts(podcasts).sorted()
+
+  builder: (req, res) ->    
+    cache res, MAX_AGE_ONE_HOUR
+  
+    loadPodcasts (podcasts) ->
+      showsSorted = showsFromPodcasts(podcasts).sorted()
+
+      res.render 'shows', {showsJSON: -> JSON.stringify(showsSorted)}
 
   podcast: (req, res) ->
+    cache res, MAX_AGE_ONE_HOUR
+
     db.createReadStream().pipe concatstream (podcastRecords) ->
       unless podcastRecords and podcastRecords.length
         return res.send 404, 'out of clay' 
@@ -54,7 +75,7 @@ module.exports = (app, db, config) ->
       res.send podcastgen
         title: title
         baseUrl: ""
-        podcastUrl: "#{req.protocol}://#{req.get 'host'}#{req.originalUrl}"
+        podcastUrl: requestUrl(req)
         items: sortByTimeDesc _.map podcastsFiltered, (podcast) ->
           dateParsed = new Date(podcast.airdate)
 
@@ -64,7 +85,7 @@ module.exports = (app, db, config) ->
           timestamp: dateParsed.getTime()
 
   list: (req, res) ->
-    return unless authorised req, res
+    return res.send 403 unless authorised req
 
     db.createReadStream().pipe concatstream (podcastRecords) ->
       return res.send 404 unless podcastRecords and podcastRecords.length
@@ -78,7 +99,7 @@ module.exports = (app, db, config) ->
       res.end()
 
   update: (req, res) ->
-    return unless authorised req, res
+    return res.send 403 unless authorised req
 
     page = req.query.page or 1
     url = "http://rinse.fm/podcasts/?page=#{page}"

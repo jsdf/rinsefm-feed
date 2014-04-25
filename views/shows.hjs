@@ -4,7 +4,6 @@
     <meta charset="utf-8" />
     <title>rinse fm podcast generator</title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
-    <script src="/javascripts/vendor/react-0.10.0-dev.js"></script>
   </head>
   <body>
     <h1 id="title">rinse fm podcast generator</h1>
@@ -15,7 +14,12 @@
       <li>paste podcast url and click ok</li>
       <li>dun</li>
     </ol>
-    <div id="shows"></div>
+    <div id="shows">
+      loading...
+    </div>
     <script type="text/javascript" src="/javascripts/client.js"></script>
+    <script type="text/javascript">
+      RinseFM.init({{{showsJSON}}}, document.getElementById('shows'));
+    </script>
   </body>
 </html>
