@@ -9,8 +9,6 @@ scrape = require '../scraper'
 
 moment.lang 'en'
 DATE_RFC2822 = "ddd, DD MMM YYYY HH:mm:ss ZZ"
-MAX_AGE_ONE_HOUR = moment.duration(1, 'hours').asSeconds()
-MAX_AGE_ONE_DAY = moment.duration(24, 'hours').asSeconds()
 
 cache = (res, maxAge) ->
   res.set "Cache-Control":"public, max-age=#{maxAge}"
@@ -37,13 +35,13 @@ module.exports = (app, db, config) ->
 
   # routes
   shows: (req, res) ->
-    cache res, MAX_AGE_ONE_HOUR
+    cache res, config.maxAgeDynamic
 
     loadPodcasts (podcasts) ->
       res.json showsFromPodcasts(podcasts).sorted()
 
   builder: (req, res) ->    
-    cache res, MAX_AGE_ONE_HOUR
+    cache res, config.maxAgeDynamic
   
     loadPodcasts (podcasts) ->
       showsSorted = showsFromPodcasts(podcasts).sorted()
@@ -51,7 +49,7 @@ module.exports = (app, db, config) ->
       res.render 'shows', {showsJSON: -> JSON.stringify(showsSorted)}
 
   podcast: (req, res) ->
-    cache res, MAX_AGE_ONE_HOUR
+    cache res, config.maxAgeDynamic
 
     loadPodcasts (podcasts) ->
       if req.query.shows
