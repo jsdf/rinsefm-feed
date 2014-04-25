@@ -53,12 +53,7 @@ module.exports = (app, db, config) ->
   podcast: (req, res) ->
     cache res, MAX_AGE_ONE_HOUR
 
-    db.createReadStream().pipe concatstream (podcastRecords) ->
-      unless podcastRecords and podcastRecords.length
-        return res.send 404, 'out of clay' 
-
-      podcasts = _.pluck podcastRecords, 'value'
-      
+    loadPodcasts (podcasts) ->
       if req.query.shows
         shows = new Set(req.query.shows.split(','))
         podcastsFiltered = _.filter podcasts, (podcast) -> shows.has podcast.show
@@ -87,13 +82,11 @@ module.exports = (app, db, config) ->
   list: (req, res) ->
     return res.send 403 unless authorised req
 
-    db.createReadStream().pipe concatstream (podcastRecords) ->
-      return res.send 404 unless podcastRecords and podcastRecords.length
+    loadPodcasts (podcasts) ->
+      res.write JSON.stringify(process.env, null, 2)+"\n"
 
       _.each(
-        _.sortBy(
-          _.pluck(podcastRecords, 'value')
-        , (podcast) -> - new Date(podcast.airdate).getTime())
+        _.sortBy(podcasts, (podcast) -> - new Date(podcast.airdate).getTime())
       , (podcast) -> res.write "#{podcast.airdate} #{podcast.title} [#{podcast.show}]\n")
 
       res.end()
