@@ -26,7 +26,7 @@
     "browserify-middleware": "^2.5.0",
     "coffeeify": "^0.6.0",
     "serve-index": "^1.0.1",
-    "coffee-reactify": "^0.1.0",
+    "coffee-reactify": "^0.1.2",
     "envify": "^1.2.1",
     "react": "^0.10.0",
     "browserify": "^3.43.0",
